@@ -9,8 +9,9 @@ import { createOrRetrieveCustomer } from '@/libs/supabaseAdmin';
 
 export async function POST() {
   try {
+    const cookiesStore = await cookies();
     const supabase = createRouteHandlerClient({
-      cookies,
+      cookies: () => cookiesStore,
     });
 
     const {

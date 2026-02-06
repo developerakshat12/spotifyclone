@@ -10,8 +10,9 @@ export async function POST(request: Request) {
   const { price, quantity = 1, metadata = {} } = await request.json();
 
   try {
+    const cookiesStore = await cookies();
     const supabase = createRouteHandlerClient({
-      cookies,
+      cookies:() => cookiesStore,
     });
     const {
       data: { user },
