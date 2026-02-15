@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 import { Database } from '@/types_db';
-import { createClientComponentClient, SupabaseClient } from '@supabase/auth-helpers-nextjs';
+import { createBrowserClient, SupabaseClient } from '@supabase/ssr';
 import { SessionContextProvider } from '@supabase/auth-helpers-react';
 
 //* Props type for the SupabaseProvider component
@@ -18,7 +18,10 @@ export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({ children }) 
 
   //* useEffect hook to initialize the Supabase client when this component mounts
   useEffect(() => {
-    const client = createClientComponentClient<Database>();
+    const client = createBrowserClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
     setSupabaseClient(client);
   }, []);
 

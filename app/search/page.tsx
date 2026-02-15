@@ -14,7 +14,8 @@ interface SearchProps {
 }
 
 const Search = async ({ searchParams }: SearchProps) => {
-  const songs = await getSongsByTitle(searchParams.title);
+  const searchParameters = await searchParams;
+  const songs = await getSongsByTitle(searchParameters.title);
 
   return (
     <div

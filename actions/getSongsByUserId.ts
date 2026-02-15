@@ -1,35 +1,46 @@
-import { Song } from '@/types';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { Song } from '@/types'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export const getSongsByUserId = async (): Promise<Song[]> => {
-  const supabase = createServerComponentClient({
-    cookies: cookies,
-  });
+  const cookieStore = await cookies()
 
-  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
 
-  if (sessionError) {
-    console.log(sessionError.message);
-    return [];
-  }
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
 
-  // Validate user ID before using in query
-  const userId = sessionData.session?.user.id;
-  if (!userId) {
-    // console.log('User not authenticated or missing ID');
-    return [];
+  if (userError || !user) {
+    return []
   }
 
   const { data, error } = await supabase
     .from('songs')
     .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
   if (error) {
-    console.log(error.message);
-    return [];
+    console.log(error.message)
+    return []
   }
-  return (data as any) || [];
-};
+
+  return (data as any) || []
+}

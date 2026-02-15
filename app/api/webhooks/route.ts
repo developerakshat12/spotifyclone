@@ -30,14 +30,14 @@ export async function POST(request: Request) {
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
-
+  console.log("SIG exists:", !!sig);
   try {
-    if (!sig || !webhookSecret) return;
+    if (!sig || !webhookSecret) return new NextResponse('Missing signature', { status: 400 });
+
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
   } catch (error: any) {
     console.log('Error message:' + error.message);
-    const sanitizedMessage = he.encode(error.message || 'Unknown error');
-    return new NextResponse(`Webhook Error: ${sanitizedMessage}`, { status: 400 });
+    return new NextResponse(`Webhook Error: ${error.message}`, { status: 400 });
   }
 
   if (relevantEvents.has(event.type)) {
@@ -52,9 +52,9 @@ export async function POST(request: Request) {
           await upsertPriceRecord(event.data.object as Stripe.Price);
           break;
 
-        case 'customer.subscription-created':
-        case 'customer.subscription-updated':
-        case 'customer.subscription-deleted':
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
           const subscription = event.data.object as Stripe.Subscription;
           // Validate subscription properties before passing to manage function
           if (!subscription.id || !subscription.customer) {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
           await manageSubscriptionStatusChange(
             subscription.id,
             subscription.customer.toString(),
-            event.type === 'customer.subscription-created'
+            event.type === 'customer.subscription.created'
           );
           break;
         case 'checkout.session.completed':

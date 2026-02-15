@@ -1,4 +1,4 @@
-import { User } from '@supabase/auth-helpers-nextjs';
+import { User } from '@supabase/supabase-js';
 import { useSessionContext, useUser as useSupaUser } from '@supabase/auth-helpers-react';
 import { UserDetails, Subscription } from '@/types';
 import { useState, createContext, useEffect, useContext } from 'react';

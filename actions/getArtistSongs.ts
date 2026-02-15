@@ -1,13 +1,9 @@
-import { Song } from "@/types"
+import { ArtistSong } from "@/types"
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
-import { getSongs } from "./getSongs"
 
-export const getSongsByTitle = async (title: string): Promise<Song[]> => {
-  if (!title) {
-    return await getSongs()
-  }
-
+// Fetch all artist-song links (for admin or analytics)
+export const getArtistSongs = async (): Promise<ArtistSong[]> => {
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -28,13 +24,12 @@ export const getSongsByTitle = async (title: string): Promise<Song[]> => {
   )
 
   const { data, error } = await supabase
-    .from("songs")
+    .from("artist_song")
     .select("*")
-    .ilike("title", `%${title}%`)
     .order("created_at", { ascending: false })
 
   if (error) {
-    console.log(error.message)
+    console.log(error)
     return []
   }
 

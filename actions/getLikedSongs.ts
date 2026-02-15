@@ -1,39 +1,48 @@
-import { Song } from '@/types';
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { Song } from '@/types'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export const getLikedSongs = async (): Promise<Song[]> => {
-  const supabase = createServerComponentClient({
-    cookies: cookies,
-  });
+  const cookieStore = await cookies()
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
 
-  const userId = session?.user?.id;
-  if (!userId) {
-    // console.log('User not authenticated or missing ID');
-    return [];
+  if (userError || !user) {
+    return []
   }
 
   const { data, error } = await supabase
     .from('liked_songs')
     .select('*, songs(*)')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
-  if (error) {
-    console.log(error);
-    return [];
+  if (error || !data) {
+    console.log(error)
+    return []
   }
 
-  if (!data) {
-    return [];
-  }
-
-  return data.map((item) => ({
-    //* Spread relation
+  return data.map((item: any) => ({
     ...item.songs,
-  }));
-};
+  }))
+}

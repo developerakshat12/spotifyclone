@@ -1,5 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/libs/supabaseServer';
 import { NextResponse } from 'next/server';
 
 import { stripe } from '@/libs/stripe';
@@ -8,15 +7,11 @@ import { createOrRetrieveCustomer } from '@/libs/supabaseAdmin';
 
 export async function POST(request: Request) {
   const { price, quantity = 1, metadata = {} } = await request.json();
-
+  console.log("BODY:", { price, quantity, metadata });
   try {
-    const cookiesStore = await cookies();
-    const supabase = createRouteHandlerClient({
-      cookies:() => cookiesStore,
-    });
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    
+    const supabase = await createServerSupabaseClient();
+    const { data: { user }, } = await supabase.auth.getUser();
 
     // Validate user and user ID before proceeding
     if (!user || !user.id) {
@@ -48,8 +43,8 @@ export async function POST(request: Request) {
       cancel_url: `${getURL()}`,
     });
     return NextResponse.json({ sessionId: session.id });
-  } catch (error: any) {
-    // console.log('Checkout session error:', error);
-    return new NextResponse('Internal Error', { status: 500 });
+  } catch (error) {
+    console.error("Checkout crash:", error);
+    return new NextResponse(String(error), { status: 500 });
   }
 }

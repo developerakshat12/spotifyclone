@@ -1,3 +1,17 @@
+export interface Artist {
+  artist_id: number;
+  name: string;
+  country?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+export interface ArtistSong {
+  id: number;
+  artist_id: number;
+  song_id: number;
+  created_at?: string | null;
+}
 import Stripe from 'stripe';
 
 export interface Song {

@@ -3,6 +3,64 @@ export type Json = string | number | boolean | null | { [key: string]: Json } | 
 export interface Database {
   public: {
     Tables: {
+            artists: {
+              Row: {
+                artist_id: number;
+                name: string;
+                country: string | null;
+                created_at: string | null;
+                updated_at: string | null;
+              };
+              Insert: {
+                artist_id?: number;
+                name: string;
+                country?: string | null;
+                created_at?: string | null;
+                updated_at?: string | null;
+              };
+              Update: {
+                artist_id?: number;
+                name?: string;
+                country?: string | null;
+                created_at?: string | null;
+                updated_at?: string | null;
+              };
+              Relationships: [];
+            };
+            artist_song: {
+              Row: {
+                id: number;
+                artist_id: number;
+                song_id: number;
+                created_at: string | null;
+              };
+              Insert: {
+                id?: number;
+                artist_id: number;
+                song_id: number;
+                created_at?: string | null;
+              };
+              Update: {
+                id?: number;
+                artist_id?: number;
+                song_id?: number;
+                created_at?: string | null;
+              };
+              Relationships: [
+                {
+                  foreignKeyName: 'artist_song_artist_id_fkey';
+                  columns: ['artist_id'];
+                  referencedRelation: 'artists';
+                  referencedColumns: ['artist_id'];
+                },
+                {
+                  foreignKeyName: 'artist_song_song_id_fkey';
+                  columns: ['song_id'];
+                  referencedRelation: 'songs';
+                  referencedColumns: ['id'];
+                }
+              ];
+            };
       customers: {
         Row: {
           id: string;
