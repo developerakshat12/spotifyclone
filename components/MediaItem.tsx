@@ -62,7 +62,8 @@ export const MediaItem: React.FC<MediaItemProps> = ({ data, onClick }) => {
             "
       >
         <p className="text-white truncate">{data.title}</p>
-        <p className="text-neutral-400 text-sm truncate">{data.author}</p>
+        {/* we need to change the dummy to artist name */}
+        <p className="text-neutral-400 text-sm truncate">{/*dummy*/}</p>
       </div>
     </div>
   );

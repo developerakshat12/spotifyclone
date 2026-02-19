@@ -80,7 +80,12 @@ export const UploadModal = () => {
       const imageFile = values.image?.[0];
       const songFile = values.song?.[0];
 
-
+      console.log('Submitting with values:', {
+        title: values.title,
+        imageFile,
+        songFile,
+        user,
+      });
       if (!imageFile || !songFile || !user) {
         toast.error('Missing fields');
         setIsLoading(false);
@@ -94,11 +99,11 @@ export const UploadModal = () => {
       }
 
       const uniqueID = uniqid();
-
+      const songExt = songFile.name.split('.').pop();
       // Upload song to Supabase storage
       const { data: songData, error: songError } = await supabaseClient.storage
         .from('songs')
-        .upload(`song-${values.title}-${uniqueID}`, songFile, {
+        .upload(`song-${values.title}-${uniqueID}.${songExt}`, songFile, {
           cacheControl: '3600',
           upsert: false,
         });
@@ -108,16 +113,22 @@ export const UploadModal = () => {
       }
 
       // Upload image to Supabase storage
-      const { data: imageData, error: imageError } = await supabaseClient.storage
-        .from('images')
-        .upload(`image-${values.title}-${uniqueID}`, imageFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      const safeTitle = values.title.replace(/\s+/g, "-");
+      const fileExt = imageFile.name.split('.').pop();
+
+      const { data: imageData, error: imageError } =
+        await supabaseClient.storage
+          .from('images')
+          .upload(
+            `image-${safeTitle}-${uniqueID}.${fileExt}`,
+            imageFile,
+            { cacheControl: '3600', upsert: false }
+          );
       if (imageError) {
         setIsLoading(false);
         return toast.error('Failed image upload.');
       }
+
 
       if (!user.id || user.id === 'undefined') {
         setIsLoading(false);
@@ -143,7 +154,7 @@ export const UploadModal = () => {
         setIsLoading(false);
         return toast.error('Please select or add an artist');
       }
-
+      
       // Send to API route
       const response = await fetch('/api/songs', {
         method: 'POST',
@@ -156,7 +167,7 @@ export const UploadModal = () => {
           artist: artistPayload,
         }),
       });
-
+      console.log('API response:', response);
       if (!response.ok) {
         const err = await response.json();
         setIsLoading(false);
@@ -190,7 +201,6 @@ export const UploadModal = () => {
           {...register('title', { required: true })}
           placeholder="Song title"
         />
-        {/* No author input, artist selection below handles this */}
         {/* Artist selection */}
         <div>
           <div className="pb-1">Artist</div>

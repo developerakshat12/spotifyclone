@@ -1,7 +1,6 @@
 'use client';
 
 import { Song } from '@/types';
-
 import { PlayButton } from './PlayButton';
 
 import Image from 'next/image';
@@ -10,6 +9,7 @@ import { useLoadImage } from '@/hooks/useLoadImage';
 
 interface SongItemProps {
   data: Song;
+
   onClick: (id: string) => void;
 }
 
@@ -55,7 +55,7 @@ export const SongItem: React.FC<SongItemProps> = ({ data, onClick }) => {
       </div>
       <div className="flex flex-col items-start w-full pt-4 gap-y-1">
         <p className="font-semibold truncate w-full">{data.title}</p>
-        <p className="text-neutral-400 text-sm pb-4 w-full truncate">By {data.author}</p>
+        <p className="text-neutral-400 text-sm pb-4 w-full truncate">By </p>
       </div>
       <div className="absolute bottom-24 right-5">
         <PlayButton />

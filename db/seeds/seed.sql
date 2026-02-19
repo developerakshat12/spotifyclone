@@ -28,7 +28,6 @@ CREATE TABLE IF NOT EXISTS public.prices (
 CREATE TABLE IF NOT EXISTS public.songs (
   id serial PRIMARY KEY,
   title text,
-  author text,
   song_path text,
   image_path text,
   user_id uuid REFERENCES auth.users(id),
@@ -36,7 +35,7 @@ CREATE TABLE IF NOT EXISTS public.songs (
 );
 
 -- Insert a sample song row pointing to a storage path (upload files to 'songs/' bucket/path)
-INSERT INTO public.songs (title, author, song_path, image_path, user_id)
+INSERT INTO public.songs (title, song_path, image_path, user_id)
 VALUES (
   'Sample Track',
   'Demo Artist',
