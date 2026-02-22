@@ -1,13 +1,19 @@
-import { getSongs } from '@/actions/getSongs';
 import { Header } from '@/components/Header';
 import { ListItem } from '@/components/ListItem';
 import { PageContent } from './components/PageContent';
-
+import { getSongsWithArtists } from '@/actions/getSongsWithArtist';
+import {
+  updateSong,
+  deleteSong,
+  updateArtistSong
+} from '@/actions/updateDeleteActions';
+import { getArtists } from '@/actions/getArtists';
 export const revalidate = 0;
 
 export default async function Home() {
-  const songs = await getSongs();
-
+  const songs = await getSongsWithArtists();
+  const artists = await getArtists();
+  
   return (
     <div className="bg-neutral-900 rounded-lg h-full w-full overflow-hidden overflow-y-auto">
       <Header>
@@ -23,7 +29,13 @@ export default async function Home() {
           <h1 className="text-white text-2xl font-semibold">Newest Songs</h1>
         </div>
         <div>
-          <PageContent songs={songs} />
+        <PageContent
+          songs={songs}
+          artists={artists}
+          updateSong={updateSong}
+          deleteSong={deleteSong}
+          updateArtistSong={updateArtistSong}
+        />
           {/* {songs.map((song) => <div>{song.title}</div>)} */}
         </div>
       </div>

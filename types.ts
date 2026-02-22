@@ -79,3 +79,19 @@ export interface Subscription {
   trial_end?: string;
   prices?: Price;
 }
+
+export interface SongWithArtists {
+  id: string;
+  user_id: string;
+  title: string;
+  song_path: string;
+  image_path: string;
+  created_at?: string;
+
+  artist_song?: {
+    artists: {
+      artist_id: number;
+      name: string;
+    };
+  }[];
+}

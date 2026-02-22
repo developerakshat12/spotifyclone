@@ -2,13 +2,25 @@
 
 import { SongItem } from '@/components/SongItem';
 import { useOnPlay } from '@/hooks/useOnPlay';
-import { Song } from '@/types';
+import { Artist, SongWithArtists } from '@/types';
 
 interface PageContentProps {
-  songs: Song[];
+  songs: SongWithArtists[];
+  artists: Artist[];
+  updateSong: (id: number, data: { title: string }) => Promise<any>;
+  deleteSong: (id: number) => Promise<any>;
+  updateArtistSong: (
+    id: number,
+    data: { artist_id: number; song_id: number }
+  ) => Promise<any>;
 }
 
-export const PageContent: React.FC<PageContentProps> = ({ songs }) => {
+export const PageContent: React.FC<PageContentProps> = ({
+  songs,
+  artists,
+  updateSong,
+  deleteSong,
+  updateArtistSong }) => {
   const onPlay = useOnPlay(songs);
 
   if (songs.length === 0) {
@@ -30,7 +42,14 @@ export const PageContent: React.FC<PageContentProps> = ({ songs }) => {
         "
     >
       {songs.map((item) => (
-        <SongItem key={item.id} onClick={(id: string) => onPlay(id)} data={item} />
+        <SongItem
+          key={item.id}
+          onClick={(id: string) => onPlay(id)}
+          data={item}
+          artists={artists}
+          updateSong={updateSong}
+          deleteSong={deleteSong}
+          updateArtistSong={updateArtistSong} />
       ))}
     </div>
   );
